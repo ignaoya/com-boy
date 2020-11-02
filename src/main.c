@@ -16,6 +16,7 @@ int main(void)
 		BeginDrawing();
 			ClearBackground(LIGHTGRAY);
 			DrawText("Computer Boy", 100, 200, 80, BLACK);
+			DrawText("A game by Ignacio Oyarzabal", 280, 290, 20, BLACK);
 		EndDrawing();
 	}
 
