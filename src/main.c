@@ -7,17 +7,45 @@ int main(void)
 	const int screenWidth = 800;
 	const int screenHeight = 600;
 
-	InitWindow(screenWidth, screenHeight, "Com-Boy");
+	InitWindow(screenWidth, screenHeight, "MoonShot");
 
+	bool gameOver = false;
+	bool intro = true;
 	// Main Loop
 	// -------------------------------------------------------------------------------------
 	while (!WindowShouldClose())
 	{
-		BeginDrawing();
-			ClearBackground(LIGHTGRAY);
-			DrawText("Computer Boy", 100, 200, 80, BLACK);
-			DrawText("A game by Ignacio Oyarzabal", 280, 290, 20, BLACK);
-		EndDrawing();
+
+		if (intro)
+		{
+			// Update
+			// -------------------------------------------------------------------------------------
+			if (IsKeyPressed(KEY_SPACE))
+				intro = false;
+			// Drawing
+			// -------------------------------------------------------------------------------------
+			BeginDrawing();
+				ClearBackground(LIGHTGRAY);
+				DrawText("MoonShot", 200, 200, 80, BLACK);
+				DrawText("a game by", 330, 290, 20, BLACK);
+				DrawText("Ignacio Oyarzabal", 300, 310, 20, BLACK);
+				DrawText("Matias Oyarzabal", 300, 330, 20, BLACK);
+				DrawText("Press SPACE to Launch", 150, 500, 40, BLACK);
+			EndDrawing();
+		}
+		else
+		{
+			// Update
+			// -------------------------------------------------------------------------------------
+			if (IsKeyPressed(KEY_SPACE))
+				gameOver = true;
+			// Drawing
+			// -------------------------------------------------------------------------------------
+			BeginDrawing();
+				ClearBackground(LIGHTGRAY);
+				DrawText("Press ESCAPE to Crash", 150, 500, 40, BLACK);
+			EndDrawing();
+		}
 	}
 
 	// De-Initialization
