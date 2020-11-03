@@ -9,8 +9,14 @@ int main(void)
 
 	InitWindow(screenWidth, screenHeight, "MoonShot");
 
-	bool gameOver = false;
+	Texture2D earthTexture = LoadTexture("resources/art/earth-temp.png");
+	Texture2D sunTexture = LoadTexture("resources/art/sun-temp.png");
+
+	Entity sun = CreatePlanet((Vector2){ 400.0f, 300.0f }, sunTexture);
+	Entity earth = CreatePlanet((Vector2){ 400.0f, 500.0f }, earthTexture);
+
 	bool intro = true;
+	SetTargetFPS(60);
 	// Main Loop
 	// -------------------------------------------------------------------------------------
 	while (!WindowShouldClose())
@@ -37,13 +43,16 @@ int main(void)
 		{
 			// Update
 			// -------------------------------------------------------------------------------------
-			if (IsKeyPressed(KEY_SPACE))
-				gameOver = true;
+			
 			// Drawing
 			// -------------------------------------------------------------------------------------
 			BeginDrawing();
 				ClearBackground(LIGHTGRAY);
-				DrawText("Press ESCAPE to Crash", 150, 500, 40, BLACK);
+				DrawText("Press ESCAPE to Crash", 150, 100, 40, BLACK);
+
+				DrawTextureRec(earth.sprite.texture, earth.sprite.frameRec, earth.position, WHITE);
+				DrawTextureRec(sun.sprite.texture, sun.sprite.frameRec, sun.position, WHITE);
+
 			EndDrawing();
 		}
 	}
@@ -53,4 +62,20 @@ int main(void)
 	CloseWindow();
 
 	return 0;
+}
+
+Entity CreatePlanet(Vector2 position, Texture2D texture)
+{
+	Entity planet = { 0 };
+	planet.position = position;
+    planet.sprite.texture = texture;  // Texture Loading
+    planet.sprite.frameRec = (Rectangle){ 0.0f, 0.0f, (float)planet.sprite.texture.width, (float)planet.sprite.texture.height };
+    planet.sprite.currentFrame = 0;
+    planet.sprite.framesCounter = 0;
+    planet.sprite.framesSpeed = 8;
+    planet.speed = 250.0f;
+    planet.permanent = 1;
+    planet.type = 'p';
+
+    return planet;
 }
