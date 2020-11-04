@@ -23,7 +23,8 @@ typedef struct Entity {
     Vector2 position;
     Sprite sprite;
     float speed;
-    float angle;
+    Vector2 direction;
+    char playerMove;
     int permanent;  // bool to indicate if sprite should be permanent or disappear after anim cycle
     char type;      // char type to indicate which type of Entity it is, and especially which type of ball
     Entity *satellite;
@@ -34,7 +35,9 @@ typedef struct Entity {
 // --------------------------------------------------------------------------------------
 Entity CreatePlanet(Vector2 position, Texture2D texture);
 void UpdatePlanet(Entity *planet, Vector2 orbitalCenter, float delta);
+void UpdatePlayer(Entity *planet, Vector2 orbitalCenter, float delta);
 Vector2 GetOrbitDirection(Vector2 position, Vector2 orbitalCenter);
+Vector2 GetGravityVector(Vector2 position, Vector2 oldDirection, Vector2 orbitalCenter);
 
 
 
