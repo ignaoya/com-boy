@@ -9,18 +9,15 @@ int main(void)
 
 	InitWindow(screenWidth, screenHeight, "MoonShot");
 
-	Texture2D earthTexture = LoadTexture("resources/art/earth-temp.png");
+	Texture2D earthTexture = LoadTexture("resources/art/earth-small.png");
 	Texture2D sunTexture = LoadTexture("resources/art/big-sun-temp.png");
+	Texture2D moonTexture = LoadTexture("resources/art/earth-temp.png");
 	Texture2D shipTexture = LoadTexture("resources/art/ship-temp.png");
 
 	Entity sun = CreatePlanet((Vector2){ 400.0f, -500.0f }, sunTexture);
 	sun.speed = 20.0f;
 	Entity earth = CreatePlanet((Vector2){ 400.0f, 300.0f }, earthTexture);
-	Entity moon = CreatePlanet((Vector2){ 400.0f, 400.0f }, earthTexture);
-	earth.satellite = &moon;
-	sun.direction = GetOrbitDirection(sun.position, earth.position);
-	moon.direction = GetOrbitDirection(moon.position, earth.position);
-	moon.playerMove = 'l';
+	Entity moon = CreatePlanet((Vector2){ 400.0f, 400.0f }, moonTexture);
 
 	bool intro = true;
 	SetTargetFPS(60);
@@ -101,11 +98,9 @@ Entity CreatePlanet(Vector2 position, Texture2D texture)
 
 void UpdatePlanet(Entity *planet, Vector2 orbitalCenter, float delta)
 {
-	Vector2 gravity = GetGravityVector(planet->position, planet->direction, orbitalCenter);
-	Vector2 newDirection = (Vector2){ planet->direction.x + gravity.x, planet->direction.y + gravity.y };
-	planet->position.x -= newDirection.x * planet->speed * delta;
-	planet->position.y -= newDirection.y * planet->speed * delta;
-	planet->direction = newDirection;
+	Vector2 direction = GetOrbitDirection(planet->position, orbitalCenter);
+	planet->position.x -= direction.x * planet->speed * delta;
+	planet->position.y -= direction.y * planet->speed * delta;
 
 	/* THIS IS A FUNCTION THAT MOVES A SATELLITE AT THE SAME TIME AS ITS PARENT PLANET
 	if (planet->satellite != NULL)
@@ -121,31 +116,15 @@ void UpdatePlayer(Entity *planet, Vector2 orbitalCenter, float delta)
 {
 	if(IsKeyDown(KEY_LEFT))
 	{
-		if (planet->playerMove == 'r')
-		{
-			Vector2 temp = Vector2Rotate(planet->direction, 180.0f);
-			planet->direction = temp;
-			planet->playerMove = 'l';
-		}
-		Vector2 gravity = GetGravityVector(planet->position, planet->direction, orbitalCenter);
-		Vector2 newDirection = (Vector2){ planet->direction.x + gravity.x, planet->direction.y + gravity.y };
-		planet->position.x -= newDirection.x * planet->speed * delta; 
-		planet->position.y -= newDirection.y * planet->speed * delta;
-		planet->direction = newDirection;
+		Vector2 direction = GetOrbitDirection(planet->position, orbitalCenter);
+		planet->position.x -= direction.x * planet->speed * delta;
+		planet->position.y -= direction.y * planet->speed * delta;
 	}
 	else if (IsKeyDown(KEY_RIGHT))
 	{
-		if (planet->playerMove == 'l')
-		{
-			Vector2 temp = Vector2Rotate(planet->direction, 180.0f);
-			planet->direction = temp;
-			planet->playerMove = 'r';
-		}
-		Vector2 gravity = GetGravityVector(planet->position, planet->direction, orbitalCenter);
-		Vector2 newDirection = (Vector2){ planet->direction.x + gravity.x, planet->direction.y + gravity.y };
-		planet->position.x += newDirection.x * planet->speed * delta;
-		planet->position.y += newDirection.y * planet->speed * delta;
-		planet->direction = newDirection;
+		Vector2 direction = GetOrbitDirection(planet->position, orbitalCenter);
+		planet->position.x += direction.x * planet->speed * delta;
+		planet->position.y += direction.y * planet->speed * delta;
 	}
 }
 
@@ -177,4 +156,31 @@ Vector2 GetOrbitDirection(Vector2 position, Vector2 orbitalCenter)
 	return orbitDirection;
 }
 
-
+//OLD UPDATE PLAYER FUNCTION USING GRAVITY FUNCITON (WORKS TERRIBLY)
+/*
+void UpdatePlayer(Entity *planet, Vector2 orbitalCenter, float delta)
+{
+	if(IsKeyDown(KEY_LEFT))
+	{
+		Vector2 gravity = GetGravityVector(planet->position, planet->direction, orbitalCenter);
+		Vector2 newDirection = (Vector2){ planet->direction.x + gravity.x, planet->direction.y + gravity.y };
+		planet->position.x -= newDirection.x * planet->speed * delta; 
+		planet->position.y -= newDirection.y * planet->speed * delta;
+		planet->direction = newDirection;
+	}
+	else if (IsKeyDown(KEY_RIGHT))
+	{
+		if (planet->playerMove == 'l')
+		{
+			Vector2 temp = Vector2Rotate(planet->direction, 180.0f);
+			planet->direction = temp;
+			planet->playerMove = 'r';
+		}
+		Vector2 gravity = GetGravityVector(planet->position, planet->direction, orbitalCenter);
+		Vector2 newDirection = (Vector2){ planet->direction.x + gravity.x, planet->direction.y + gravity.y };
+		planet->position.x += newDirection.x * planet->speed * delta;
+		planet->position.y += newDirection.y * planet->speed * delta;
+		planet->direction = newDirection;
+	}
+}
+*/
