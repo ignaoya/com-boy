@@ -11,16 +11,20 @@ int main(void)
 
 	Texture2D earthTexture = LoadTexture("resources/art/earth-small.png");
 	Texture2D sunTexture = LoadTexture("resources/art/big-sun-temp.png");
-	Texture2D moonTexture = LoadTexture("resources/art/earth-temp.png");
+	Texture2D moonTexture = LoadTexture("resources/art/moon-temp.png");
 	Texture2D shipTexture = LoadTexture("resources/art/ship-temp.png");
 
 	Entity sun = CreatePlanet((Vector2){ 400.0f, -500.0f }, sunTexture);
 	sun.speed = 20.0f;
 	Entity earth = CreatePlanet((Vector2){ 400.0f, 300.0f }, earthTexture);
 	Entity moon = CreatePlanet((Vector2){ 400.0f, 400.0f }, moonTexture);
+	Entity ships[10] = { 0 };
+	int shipsNum = 0;
 
 	bool intro = true;
 	SetTargetFPS(60);
+	int shipTimer = 0;
+	double startTime = 0;
 	// Main Loop
 	// -------------------------------------------------------------------------------------
 	while (!WindowShouldClose())
@@ -31,7 +35,10 @@ int main(void)
 			// Update
 			// -------------------------------------------------------------------------------------
 			if (IsKeyPressed(KEY_SPACE))
+			{
 				intro = false;
+				startTime = GetTime();
+			}
 			// Drawing
 			// -------------------------------------------------------------------------------------
 			BeginDrawing();
@@ -50,6 +57,11 @@ int main(void)
 			float deltaTime = GetFrameTime();
 			UpdatePlanet(&sun, (Vector2){ screenWidth/2, screenHeight/2 }, deltaTime);
 			UpdatePlayer(&moon, earth.position, deltaTime);
+			shipTimer = (int)(GetTime() - startTime) % 10;
+			if (shipTimer == 3)
+				CreateShip(ships, &shipsNum, &earth, shipTexture);
+			if (shipsNum != 0)
+				UpdateShip(&(ships[0]), &earth, &moon, deltaTime);
 			
 			// Drawing
 			// -------------------------------------------------------------------------------------
@@ -60,8 +72,10 @@ int main(void)
 			Vector2 earthPos = (Vector2){ earth.position.x - (earth.sprite.frameRec.width/2), earth.position.y - (earth.sprite.frameRec.height/2) };
 			Vector2 sunPos = (Vector2){ sun.position.x - (sun.sprite.frameRec.width/2), sun.position.y - (sun.sprite.frameRec.height/2) };
 			DrawTextureRec(earth.sprite.texture, earth.sprite.frameRec, earthPos, WHITE);
-			DrawTextureRec(moon.sprite.texture, moon.sprite.frameRec, moon.position, GRAY);
+			DrawTextureRec(moon.sprite.texture, moon.sprite.frameRec, moon.position, WHITE);
 			DrawTextureRec(sun.sprite.texture, sun.sprite.frameRec, sunPos, WHITE);
+			for (int i = 0; i < shipsNum; i++)
+				DrawTextureRec(ships[i].sprite.texture, ships[i].sprite.frameRec, ships[i].position, WHITE);
 			DrawFPS(700, 50);
 
 			EndDrawing();
@@ -87,7 +101,7 @@ Entity CreatePlanet(Vector2 position, Texture2D texture)
     planet.sprite.currentFrame = 0;
     planet.sprite.framesCounter = 0;
     planet.sprite.framesSpeed = 8;
-    planet.speed = 100.0f;
+    planet.speed = 200.0f;
 	planet.direction = (Vector2){ 0.0f, 0.0f };
     planet.permanent = 1;
     planet.type = 'p';
@@ -128,6 +142,40 @@ void UpdatePlayer(Entity *planet, Vector2 orbitalCenter, float delta)
 	}
 }
 
+void UpdateShip(Entity *ship, Entity *earth, Entity *moon, float delta)
+{
+	if (ship->countdown < 0.1f)
+	{
+		Vector2 direction = { 0.0, 0.0 };
+		if (ship->speed < 100)
+			ship->speed++;
+		if (Vector2Distance(ship->position, moon->position) < 20)
+		{
+			direction = GetOrbitDirection(ship->position, moon->position);
+		}
+		else
+		{
+			direction = GetShipDirection(ship->position, earth->position);
+		}
+		ship->position.x -= direction.x * ship->speed * delta;
+		ship->position.y -= direction.y * ship->speed * delta;
+	}
+	else
+	{
+		ship->countdown -= 1.0 * delta;
+	}
+}
+
+Vector2 GetShipDirection(Vector2 position, Vector2 origin)
+{
+	float distance = Vector2Distance(position, origin);
+	Vector2 direction = (Vector2){ origin.x - position.x, origin.y - position.y };
+	Vector2 nDirection = (Vector2){ direction.x / distance, direction.y / distance };
+
+	return nDirection;
+}
+
+
 
 
 // NEW FUNCTION TODO
@@ -151,10 +199,38 @@ Vector2 GetOrbitDirection(Vector2 position, Vector2 orbitalCenter)
 	float distance = Vector2Distance(position, orbitalCenter);
 	Vector2 direction = (Vector2){ orbitalCenter.x - position.x, orbitalCenter.y - position.y };
 	Vector2 nDirection = (Vector2){ direction.x / distance, direction.y / distance };
-	Vector2 orbitDirection = Vector2Rotate(nDirection, 90.0f);
+	Vector2 orbitDirection = Vector2Rotate(nDirection, 95.0f);
 
 	return orbitDirection;
 }
+
+void CreateShip(Entity ships[], int *num, Entity * earth, Texture2D texture)
+{
+	if (*num < 1)
+	{
+		Entity ship = { 0 };
+		Vector2 posModifier = (Vector2){ earth->position.x - (earth->position.x - (earth->sprite.texture.width/2)),
+										 earth->position.y - (earth->position.y) };
+		//posModifier = (Vector2){ posModifier.x / (earth->sprite.texture.width/2), posModifier.y / (earth->sprite.texture.width/2) };
+		posModifier = Vector2Rotate(posModifier, 20.0f * (*num));
+		ship.position = (Vector2){ earth->position.x + posModifier.x, earth->position.y + posModifier.y };
+		ship.sprite.texture = texture;  // Texture Loading
+		ship.sprite.frameRec = (Rectangle){ 0.0f, 0.0f, (float)ship.sprite.texture.width, (float)ship.sprite.texture.height };
+		ship.sprite.currentFrame = 0;
+		ship.sprite.framesCounter = 0;
+		ship.sprite.framesSpeed = 8;
+		ship.speed = 200.0f;
+		ship.direction = (Vector2){ 0.0f, 0.0f };
+		ship.permanent = 1;
+		ship.type = 'p';
+		ship.satellite = NULL;
+		ship.countdown = 2.0f;
+
+		ships[*num] = ship;
+		(*num)++;
+	}
+}
+
 
 //OLD UPDATE PLAYER FUNCTION USING GRAVITY FUNCITON (WORKS TERRIBLY)
 /*
