@@ -2,6 +2,7 @@
 #define MAIN_H
 
 #include "stdlib.h"
+#include "time.h"
 #include "raylib.h"
 #include "raymath.h"
 
@@ -27,7 +28,7 @@ typedef struct Entity {
     char playerMove;
     int permanent;  // bool to indicate if sprite should be permanent or disappear after anim cycle
     char type;      // char type to indicate which type of Entity it is, and especially which type of ball
-    Entity *satellite;
+    bool leftEarth; //bool to indicate if a ship has left earth's orbit
     float countdown; // Counter for ships to liftoff
 } Entity;
 
@@ -39,7 +40,7 @@ void CreateShip(Entity ships[], int *num, Entity *earth, Texture2D texture);
 void UpdateShip(Entity *ship, Entity *earth, Entity *moon, float delta);
 void UpdatePlanet(Entity *planet, Vector2 orbitalCenter, float delta);
 void UpdatePlayer(Entity *planet, Vector2 orbitalCenter, float delta);
-Vector2 GetOrbitDirection(Vector2 position, Vector2 orbitalCenter);
+Vector2 GetOrbitDirection(Vector2 position, Vector2 orbitalCenter, bool isPlanet);
 Vector2 GetShipDirection(Vector2 position, Vector2 origin);
 Vector2 GetGravityVector(Vector2 position, Vector2 oldDirection, Vector2 orbitalCenter);
 
