@@ -1,3 +1,14 @@
+//TODO list
+//
+// Add Countdown numbers when a ship is about to launch from Earth
+//
+// Add collisions between ships
+//
+// Add collisions between ships and the moon depending on the angle of approach (if possible)
+//
+// Add a counter of how many ships lost and how many saved.
+//
+//
 #include "main.h"
 
 int main(void)
