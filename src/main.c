@@ -13,6 +13,7 @@ int main(void)
 	Texture2D sunTexture = LoadTexture("resources/art/big-sun-temp.png");
 	Texture2D moonTexture = LoadTexture("resources/art/moon-temp.png");
 	Texture2D shipTexture = LoadTexture("resources/art/ship-temp.png");
+	Texture2D explosion = LoadTexture("resources/art/explosion.png");
 
 	Entity sun = CreatePlanet((Vector2){ 400.0f, -500.0f }, sunTexture);
 	sun.speed = 20.0f;
@@ -69,7 +70,20 @@ int main(void)
 			if (shipsNum != 0)
 			{
 				for (int i = 0; i < shipsNum; i++)
-					UpdateShip(&(ships[i]), &earth, &moon, deltaTime);
+				{
+					UpdateShip(&(ships[i]), &earth, &moon, deltaTime, explosion);
+					/*
+					if (ships[i].exploded)
+					{
+						ships[i].sprite.texture = explosion;
+						ships[i].sprite.frameRec = (Rectangle){ 0.0f, 0.0f, 
+							(float)ships[i].sprite.texture.width, (float)ships[i].sprite.texture.height/5 };
+						ships[i].sprite.currentFrame = 0;
+						ships[i].sprite.framesCounter = 0;
+						ships[i].sprite.framesSpeed = 5;
+					}
+					*/
+				}
 			}
 			
 			// Drawing
@@ -84,7 +98,9 @@ int main(void)
 			DrawTextureRec(moon.sprite.texture, moon.sprite.frameRec, moon.position, WHITE);
 			DrawTextureRec(sun.sprite.texture, sun.sprite.frameRec, sunPos, WHITE);
 			for (int i = 0; i < shipsNum; i++)
-				DrawTextureRec(ships[i].sprite.texture, ships[i].sprite.frameRec, ships[i].position, WHITE);
+				DrawTextureRec(ships[i].sprite.texture, ships[i].sprite.frameRec, 
+					(Vector2) { ships[i].position.x - (ships[i].sprite.frameRec.width/2), ships[i].position.y - (ships[i].sprite.frameRec.height/2) }, 
+					WHITE);
 			DrawFPS(700, 50);
 
 			EndDrawing();
@@ -150,7 +166,7 @@ void UpdatePlayer(Entity *planet, Vector2 orbitalCenter, float delta)
 	}
 }
 
-void UpdateShip(Entity *ship, Entity *earth, Entity *moon, float delta)
+void UpdateShip(Entity *ship, Entity *earth, Entity *moon, float delta, Texture2D explosion)
 {
 	if (ship->countdown < 0.1f)
 	{
@@ -188,6 +204,12 @@ void UpdateShip(Entity *ship, Entity *earth, Entity *moon, float delta)
 			}
 		}
 
+		if (ship->exploded)
+		{
+			ship->speed = 0;
+			UpdateSpriteFrame(&(ship->sprite));
+		}
+
 		ship->position.x -= direction.x * ship->speed * delta;
 		ship->position.y -= direction.y * ship->speed * delta;
 	}
@@ -195,7 +217,48 @@ void UpdateShip(Entity *ship, Entity *earth, Entity *moon, float delta)
 	{
 		ship->countdown -= 1.0 * delta;
 	}
+
+	if (ship->speed > 10)
+	{
+		if (!ship->exploded)
+		{
+			//Vector2 earthPos = (Vector2) {earth->position.x +(earth->sprite.frameRec.width/2), earth->position.y + (earth->sprite.frameRec.height/2) };
+			ship->exploded = CheckCollisions(ship, earth->position);
+			if (ship->exploded)
+			{
+				ship->sprite.texture = explosion;
+				ship->sprite.frameRec = (Rectangle){ 0.0f, 0.0f, (float)ship->sprite.texture.width, (float)ship->sprite.texture.height/6 };
+				ship->sprite.currentFrame = 0;
+				ship->sprite.framesCounter = 0;
+				ship->sprite.framesSpeed = 5;
+			}
+		}
+	}
+
 }
+
+bool CheckCollisions(Entity *ship, Vector2 earthPos)
+{
+	if (CheckCollisionCircles(ship->position, 2, earthPos, 30))
+		return true;
+	else
+		return false;
+}
+
+void UpdateSpriteFrame(Sprite *sprite)
+{
+	sprite->framesCounter++;
+	if (sprite->framesCounter >= (60/sprite->framesSpeed))
+	{
+		sprite->framesCounter = 0;
+		sprite->currentFrame++;
+
+		if (sprite->currentFrame > 4) sprite->currentFrame = 5;
+
+		sprite->frameRec.y = (float)sprite->currentFrame * (float)sprite->texture.height/6;
+	}
+}
+
 
 Vector2 GetShipDirection(Vector2 position, Vector2 origin)
 {
@@ -266,6 +329,7 @@ void CreateShip(Entity ships[], int *num, Entity * earth, Texture2D texture)
 		ship.type = 's';
 		ship.leftEarth = false;
 		ship.countdown = 2.0f;
+		ship.exploded = false;
 
 		ships[*num] = ship;
 		(*num)++;
