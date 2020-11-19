@@ -30,7 +30,7 @@ int main(void)
 	sun.speed = 20.0f;
 	Entity earth = CreatePlanet((Vector2){ 400.0f, 300.0f }, earthTexture);
 	Entity moon = CreatePlanet((Vector2){ 400.0f, 400.0f }, moonTexture);
-	Entity ships[10] = { 0 };
+	Entity ships[100] = { 0 };
 	int shipsNum = 0;
 	int maxShips = 0;
 
@@ -82,7 +82,7 @@ int main(void)
 			{
 				for (int i = 0; i < shipsNum; i++)
 				{
-					UpdateShip(&(ships[i]), &earth, &moon, &sun, deltaTime, explosion);
+					UpdateShip(&(ships[i]), ships, shipsNum, &earth, &moon, &sun, deltaTime, explosion);
 					/*
 					if (ships[i].exploded)
 					{
@@ -177,7 +177,7 @@ void UpdatePlayer(Entity *planet, Vector2 orbitalCenter, float delta)
 	}
 }
 
-void UpdateShip(Entity *ship, Entity *earth, Entity *moon, Entity *sun, float delta, Texture2D explosion)
+void UpdateShip(Entity *ship, Entity ships[], int shipsNum, Entity *earth, Entity *moon, Entity *sun, float delta, Texture2D explosion)
 {
 	Vector2 moonPos = (Vector2) { moon->position.x + (moon->sprite.frameRec.width/2), moon->position.y + (moon->sprite.frameRec.height/2) };
 	if (ship->countdown < 0.1f)
@@ -235,7 +235,7 @@ void UpdateShip(Entity *ship, Entity *earth, Entity *moon, Entity *sun, float de
 		if (!ship->exploded)
 		{
 			//Vector2 earthPos = (Vector2) {earth->position.x +(earth->sprite.frameRec.width/2), earth->position.y + (earth->sprite.frameRec.height/2) };
-			ship->exploded = CheckCollisions(ship, earth->position, sun->position);
+			ship->exploded = CheckCollisions(ship, ships, shipsNum, earth->position, sun->position);
 			if (ship->exploded)
 			{
 				ship->sprite.texture = explosion;
@@ -249,12 +249,32 @@ void UpdateShip(Entity *ship, Entity *earth, Entity *moon, Entity *sun, float de
 
 }
 
-bool CheckCollisions(Entity *ship, Vector2 earthPos, Vector2 sunPos)
+bool CheckCollisions(Entity *ship, Entity ships[], int shipsNum, Vector2 earthPos, Vector2 sunPos)
 {
 	if (CheckCollisionCircles(ship->position, 2, earthPos, 30) || CheckCollisionCircles(ship->position, 2, sunPos, 470))
+	{
 		return true;
+	}
 	else
-		return false;
+	{
+		for (int i = 0; i < shipsNum; i++)
+		{
+			if ((ship->position.x != ships[i].position.x || ship->position.y != ships[i].position.y))
+			{
+				if (ships[i].exploded && ships[i].sprite.currentFrame != 5)
+				{
+					if (CheckCollisionCircles(ship->position, 2, ships[i].position, 10))
+						return true;
+				}
+				else if (!ships[i].exploded)
+				{
+					if (CheckCollisionCircles(ship->position, 2, ships[i].position, 2))
+						return true;
+				}
+			}
+		}
+	}
+	return false;
 }
 
 void UpdateSpriteFrame(Sprite *sprite)
@@ -319,7 +339,7 @@ Vector2 GetOrbitDirection(Vector2 position, Vector2 orbitalCenter, bool isPlanet
 
 void CreateShip(Entity ships[], int *num, Entity * earth, Texture2D texture)
 {
-	if (*num < 9)
+	if (*num < 99)
 	{
 		int spawnAngle = (rand() % 360) + 1;
 
