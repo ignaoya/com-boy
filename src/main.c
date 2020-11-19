@@ -82,7 +82,7 @@ int main(void)
 			{
 				for (int i = 0; i < shipsNum; i++)
 				{
-					UpdateShip(&(ships[i]), &earth, &moon, deltaTime, explosion);
+					UpdateShip(&(ships[i]), &earth, &moon, &sun, deltaTime, explosion);
 					/*
 					if (ships[i].exploded)
 					{
@@ -177,7 +177,7 @@ void UpdatePlayer(Entity *planet, Vector2 orbitalCenter, float delta)
 	}
 }
 
-void UpdateShip(Entity *ship, Entity *earth, Entity *moon, float delta, Texture2D explosion)
+void UpdateShip(Entity *ship, Entity *earth, Entity *moon, Entity *sun, float delta, Texture2D explosion)
 {
 	if (ship->countdown < 0.1f)
 	{
@@ -234,7 +234,7 @@ void UpdateShip(Entity *ship, Entity *earth, Entity *moon, float delta, Texture2
 		if (!ship->exploded)
 		{
 			//Vector2 earthPos = (Vector2) {earth->position.x +(earth->sprite.frameRec.width/2), earth->position.y + (earth->sprite.frameRec.height/2) };
-			ship->exploded = CheckCollisions(ship, earth->position);
+			ship->exploded = CheckCollisions(ship, earth->position, sun->position);
 			if (ship->exploded)
 			{
 				ship->sprite.texture = explosion;
@@ -248,9 +248,9 @@ void UpdateShip(Entity *ship, Entity *earth, Entity *moon, float delta, Texture2
 
 }
 
-bool CheckCollisions(Entity *ship, Vector2 earthPos)
+bool CheckCollisions(Entity *ship, Vector2 earthPos, Vector2 sunPos)
 {
-	if (CheckCollisionCircles(ship->position, 2, earthPos, 30))
+	if (CheckCollisionCircles(ship->position, 2, earthPos, 30) || CheckCollisionCircles(ship->position, 2, sunPos, 470))
 		return true;
 	else
 		return false;

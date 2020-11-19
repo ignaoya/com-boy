@@ -38,13 +38,13 @@ typedef struct Entity {
 // --------------------------------------------------------------------------------------
 Entity CreatePlanet(Vector2 position, Texture2D texture);
 void CreateShip(Entity ships[], int *num, Entity *earth, Texture2D texture);
-void UpdateShip(Entity *ship, Entity *earth, Entity *moon, float delta, Texture2D explosion);
+void UpdateShip(Entity *ship, Entity *earth, Entity *moon, Entity *sun, float delta, Texture2D explosion);
 void UpdatePlanet(Entity *planet, Vector2 orbitalCenter, float delta);
 void UpdatePlayer(Entity *planet, Vector2 orbitalCenter, float delta);
 Vector2 GetOrbitDirection(Vector2 position, Vector2 orbitalCenter, bool isPlanet);
 Vector2 GetShipDirection(Vector2 position, Vector2 origin);
 Vector2 GetGravityVector(Vector2 position, Vector2 oldDirection, Vector2 orbitalCenter);
-bool CheckCollisions(Entity *ship, Vector2 earthPos);
+bool CheckCollisions(Entity *ship, Vector2 earthPos, Vector2 sunPos);
 void UpdateSpriteFrame(Sprite *sprite);
 
 
