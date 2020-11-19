@@ -179,6 +179,7 @@ void UpdatePlayer(Entity *planet, Vector2 orbitalCenter, float delta)
 
 void UpdateShip(Entity *ship, Entity *earth, Entity *moon, Entity *sun, float delta, Texture2D explosion)
 {
+	Vector2 moonPos = (Vector2) { moon->position.x + (moon->sprite.frameRec.width/2), moon->position.y + (moon->sprite.frameRec.height/2) };
 	if (ship->countdown < 0.1f)
 	{
 		Vector2 direction = { 0.0, 0.0 };
@@ -186,16 +187,16 @@ void UpdateShip(Entity *ship, Entity *earth, Entity *moon, Entity *sun, float de
 		if (ship->speed < 200)
 			ship->speed++;
 
-		if (Vector2Distance(ship->position, moon->position) < 20)
+		if (Vector2Distance(ship->position, moonPos) < 30)
 		{
 			ship->leftEarth = true;
 		}
 		
 		if (ship->leftEarth)
 		{
-			if (Vector2Distance(ship->position, moon->position) < 25)
+			if (Vector2Distance(ship->position, moonPos) < 35)
 			{
-				direction = GetOrbitDirection(ship->position, moon->position, false);
+				direction = GetOrbitDirection(ship->position, moonPos, false);
 				ship->direction = direction;
 			}
 			else
