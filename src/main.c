@@ -39,6 +39,13 @@ int main(void)
 	int shipTimer = 0;
 	double startTime = 0;
 	srand(time(0));
+
+	int shipsSaved = 0;
+	char savedString[50];
+	int shipsLost = 0;
+	char lostString[50];
+	int shipsStranded = 0;
+	char strandedString[50];
 	// Main Loop
 	// -------------------------------------------------------------------------------------
 	while (!WindowShouldClose())
@@ -68,6 +75,10 @@ int main(void)
 		{
 			// Update
 			// -------------------------------------------------------------------------------------
+
+			sprintf(savedString, "%i", shipsSaved);
+			sprintf(lostString, "%i", shipsLost);
+			sprintf(strandedString, "%i", shipsStranded);
 			float deltaTime = GetFrameTime();
 			UpdatePlanet(&sun, (Vector2){ screenWidth/2, screenHeight/2 }, deltaTime);
 			UpdatePlayer(&moon, earth.position, deltaTime);
@@ -80,20 +91,20 @@ int main(void)
 
 			if (shipsNum != 0)
 			{
+				shipsSaved = 0;
+				shipsLost = 0;
+				shipsStranded = 0;
 				for (int i = 0; i < shipsNum; i++)
 				{
 					UpdateShip(&(ships[i]), ships, shipsNum, &earth, &moon, &sun, deltaTime, explosion);
-					/*
 					if (ships[i].exploded)
-					{
-						ships[i].sprite.texture = explosion;
-						ships[i].sprite.frameRec = (Rectangle){ 0.0f, 0.0f, 
-							(float)ships[i].sprite.texture.width, (float)ships[i].sprite.texture.height/5 };
-						ships[i].sprite.currentFrame = 0;
-						ships[i].sprite.framesCounter = 0;
-						ships[i].sprite.framesSpeed = 5;
-					}
-					*/
+						shipsLost++;
+					else if (Vector2Distance(ships[i].position, earth.position) > 1000)
+						shipsSaved++;
+					else if (100 < Vector2Distance(ships[i].position, earth.position) && 
+							       Vector2Distance(ships[i].position, earth.position) < 1000 && 
+								   ships[i].speed < 2)
+						shipsStranded++;
 				}
 			}
 			
@@ -113,6 +124,12 @@ int main(void)
 					(Vector2) { ships[i].position.x - (ships[i].sprite.frameRec.width/2), ships[i].position.y - (ships[i].sprite.frameRec.height/2) }, 
 					WHITE);
 			DrawFPS(700, 50);
+			DrawText("Ships Saved: ", 10, 50, 10, WHITE);
+			DrawText(savedString, 80, 50, 10, WHITE);
+			DrawText("Ships Stranded: ", 10, 80, 10, WHITE);
+			DrawText(strandedString, 100, 80, 10, WHITE);
+			DrawText("Ships Lost: ", 10, 100, 10, WHITE);
+			DrawText(lostString, 80, 100, 10, WHITE);
 
 			EndDrawing();
 		}
