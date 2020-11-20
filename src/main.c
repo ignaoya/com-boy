@@ -141,13 +141,14 @@ Entity CreatePlanet(Vector2 position, Texture2D texture)
 	planet.direction = (Vector2){ 0.0f, 0.0f };
     planet.permanent = 1;
     planet.type = 'p';
+	planet.entryAngle = 'n';
 
     return planet;
 }
 
 void UpdatePlanet(Entity *planet, Vector2 orbitalCenter, float delta)
 {
-	Vector2 direction = GetOrbitDirection(planet->position, orbitalCenter, true);
+	Vector2 direction = GetOrbitDirection(planet->position, planet->entryAngle, orbitalCenter, true);
 	planet->position.x -= direction.x * planet->speed * delta;
 	planet->position.y -= direction.y * planet->speed * delta;
 
@@ -165,13 +166,13 @@ void UpdatePlayer(Entity *planet, Vector2 orbitalCenter, float delta)
 {
 	if(IsKeyDown(KEY_LEFT))
 	{
-		Vector2 direction = GetOrbitDirection(planet->position, orbitalCenter, true);
+		Vector2 direction = GetOrbitDirection(planet->position, planet->entryAngle, orbitalCenter, true);
 		planet->position.x -= direction.x * planet->speed * delta;
 		planet->position.y -= direction.y * planet->speed * delta;
 	}
 	else if (IsKeyDown(KEY_RIGHT))
 	{
-		Vector2 direction = GetOrbitDirection(planet->position, orbitalCenter, true);
+		Vector2 direction = GetOrbitDirection(planet->position, planet->entryAngle, orbitalCenter, true);
 		planet->position.x += direction.x * planet->speed * delta;
 		planet->position.y += direction.y * planet->speed * delta;
 	}
@@ -196,12 +197,38 @@ void UpdateShip(Entity *ship, Entity ships[], int shipsNum, Entity *earth, Entit
 		{
 			if (Vector2Distance(ship->position, moonPos) < 35)
 			{
-				direction = GetOrbitDirection(ship->position, moonPos, false);
+				if (ship->entryAngle == 'n')
+				{
+					if (ship->position.y > moonPos.y)
+					{
+						if (ship->position.x < moonPos.x)
+						{
+							ship->entryAngle = 'l';
+						}
+						else
+						{
+							ship->entryAngle = 'r';
+						}
+					}
+					else
+					{
+						if (ship->position.x < moonPos.x)
+						{
+							ship->entryAngle = 'r';
+						}
+						else
+						{
+							ship->entryAngle = 'l';
+						}
+					}
+				}
+				direction = GetOrbitDirection(ship->position, ship->entryAngle, moonPos, false);
 				ship->direction = direction;
 			}
 			else
 			{
 				direction = ship->direction;
+				ship->entryAngle = 'n';
 			}
 
 		}
@@ -302,7 +329,7 @@ Vector2 GetShipDirection(Vector2 position, Vector2 origin)
 }
 
 
-Vector2 GetOrbitDirection(Vector2 position, Vector2 orbitalCenter, bool isPlanet)
+Vector2 GetOrbitDirection(Vector2 position, char entryAngle, Vector2 orbitalCenter, bool isPlanet)
 {
 	float rotationAngle;
 	float distance = Vector2Distance(position, orbitalCenter);
@@ -311,9 +338,17 @@ Vector2 GetOrbitDirection(Vector2 position, Vector2 orbitalCenter, bool isPlanet
 	Vector2 nDirection = (Vector2){ direction.x / distance, direction.y / distance };
 
 	if (isPlanet)
+	{
 		rotationAngle = 90.0f;
+	}
 	else
-		rotationAngle = 95.0f;
+	{
+		if (entryAngle == 'l')
+			rotationAngle = 95.0f;
+		else
+			rotationAngle = -95.0f;
+	}
+
 	Vector2 orbitDirection = Vector2Rotate(nDirection, rotationAngle);
 
 	return orbitDirection;
@@ -344,6 +379,7 @@ void CreateShip(Entity ships[], int *num, Entity * earth, Texture2D texture)
 		ship.leftEarth = false;
 		ship.countdown = 2.0f;
 		ship.exploded = false;
+		ship.entryAngle = 'n';
 
 		ships[*num] = ship;
 		(*num)++;

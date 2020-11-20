@@ -31,6 +31,7 @@ typedef struct Entity {
     bool leftEarth; //bool to indicate if a ship has left earth's orbit
     float countdown; // Counter for ships to liftoff
     bool exploded; //bool to indicate if a ship has exploded
+    char entryAngle; // char to indicate what is the entry angle of a ship with respect to the moon (n: none, l: left, r: right)
 } Entity;
 
 
@@ -41,7 +42,7 @@ void CreateShip(Entity ships[], int *num, Entity *earth, Texture2D texture);
 void UpdateShip(Entity *ship, Entity ships[], int shipsNum, Entity *earth, Entity *moon, Entity *sun, float delta, Texture2D explosion);
 void UpdatePlanet(Entity *planet, Vector2 orbitalCenter, float delta);
 void UpdatePlayer(Entity *planet, Vector2 orbitalCenter, float delta);
-Vector2 GetOrbitDirection(Vector2 position, Vector2 orbitalCenter, bool isPlanet);
+Vector2 GetOrbitDirection(Vector2 position, char entryAngle, Vector2 orbitalCenter, bool isPlanet);
 Vector2 GetShipDirection(Vector2 position, Vector2 origin);
 bool CheckCollisions(Entity *ship, Entity ships[], int shipsNum, Vector2 earthPos, Vector2 sunPos);
 void UpdateSpriteFrame(Sprite *sprite);
