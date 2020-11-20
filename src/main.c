@@ -302,24 +302,6 @@ Vector2 GetShipDirection(Vector2 position, Vector2 origin)
 }
 
 
-
-
-// NEW FUNCTION TODO
-// Make a function that takes a previousVelocityVector and modifies that with the force of gravity towards the planet
-// so that each time the previousVelocityVector gets updated and makes it turn downwards organically.
-
-Vector2 GetGravityVector(Vector2 position, Vector2 oldDirection, Vector2 orbitalCenter)
-{
-	float distance = Vector2Distance(orbitalCenter, (Vector2){ position.x + oldDirection.x, position.y + oldDirection.y });
-	Vector2 direction = (Vector2){ position.x + oldDirection.x - orbitalCenter.x, position.y + oldDirection.y - orbitalCenter.y };
-	Vector2 nDirection = (Vector2){ direction.x / distance, direction.y / distance };
-	float intensity = distance / 3.0f;
-	Vector2 gravity = (Vector2){ nDirection.x / intensity, nDirection.y / intensity };
-
-	return gravity;
-}
-
-
 Vector2 GetOrbitDirection(Vector2 position, Vector2 orbitalCenter, bool isPlanet)
 {
 	float rotationAngle;
@@ -369,31 +351,3 @@ void CreateShip(Entity ships[], int *num, Entity * earth, Texture2D texture)
 }
 
 
-//OLD UPDATE PLAYER FUNCTION USING GRAVITY FUNCITON (WORKS TERRIBLY)
-/*
-void UpdatePlayer(Entity *planet, Vector2 orbitalCenter, float delta)
-{
-	if(IsKeyDown(KEY_LEFT))
-	{
-		Vector2 gravity = GetGravityVector(planet->position, planet->direction, orbitalCenter);
-		Vector2 newDirection = (Vector2){ planet->direction.x + gravity.x, planet->direction.y + gravity.y };
-		planet->position.x -= newDirection.x * planet->speed * delta; 
-		planet->position.y -= newDirection.y * planet->speed * delta;
-		planet->direction = newDirection;
-	}
-	else if (IsKeyDown(KEY_RIGHT))
-	{
-		if (planet->playerMove == 'l')
-		{
-			Vector2 temp = Vector2Rotate(planet->direction, 180.0f);
-			planet->direction = temp;
-			planet->playerMove = 'r';
-		}
-		Vector2 gravity = GetGravityVector(planet->position, planet->direction, orbitalCenter);
-		Vector2 newDirection = (Vector2){ planet->direction.x + gravity.x, planet->direction.y + gravity.y };
-		planet->position.x += newDirection.x * planet->speed * delta;
-		planet->position.y += newDirection.y * planet->speed * delta;
-		planet->direction = newDirection;
-	}
-}
-*/

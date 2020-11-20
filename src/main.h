@@ -43,7 +43,6 @@ void UpdatePlanet(Entity *planet, Vector2 orbitalCenter, float delta);
 void UpdatePlayer(Entity *planet, Vector2 orbitalCenter, float delta);
 Vector2 GetOrbitDirection(Vector2 position, Vector2 orbitalCenter, bool isPlanet);
 Vector2 GetShipDirection(Vector2 position, Vector2 origin);
-Vector2 GetGravityVector(Vector2 position, Vector2 oldDirection, Vector2 orbitalCenter);
 bool CheckCollisions(Entity *ship, Entity ships[], int shipsNum, Vector2 earthPos, Vector2 sunPos);
 void UpdateSpriteFrame(Sprite *sprite);
 
