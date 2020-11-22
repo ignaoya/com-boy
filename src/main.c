@@ -201,6 +201,7 @@ void UpdateShip(Entity *ship, Entity ships[], int shipsNum, Entity *earth, Entit
 	if (ship->countdown < 0.1f)
 	{
 		Vector2 direction = { 0.0, 0.0 };
+		ship->launched = true;
 
 		if (ship->speed < 200)
 			ship->speed++;
@@ -274,11 +275,10 @@ void UpdateShip(Entity *ship, Entity ships[], int shipsNum, Entity *earth, Entit
 		ship->countdown -= 1.0 * delta;
 	}
 
-	if (ship->speed > 10)
+	if (ship->launched)
 	{
 		if (!ship->exploded)
 		{
-			//Vector2 earthPos = (Vector2) {earth->position.x +(earth->sprite.frameRec.width/2), earth->position.y + (earth->sprite.frameRec.height/2) };
 			ship->exploded = CheckCollisions(ship, ships, shipsNum, earth->position, sun->position);
 			if (ship->exploded)
 			{
@@ -290,7 +290,6 @@ void UpdateShip(Entity *ship, Entity ships[], int shipsNum, Entity *earth, Entit
 			}
 		}
 	}
-
 }
 
 bool CheckCollisions(Entity *ship, Entity ships[], int shipsNum, Vector2 earthPos, Vector2 sunPos)
@@ -397,6 +396,7 @@ void CreateShip(Entity ships[], int *num, Entity * earth, Texture2D texture)
 		ship.countdown = 2.0f;
 		ship.exploded = false;
 		ship.entryAngle = 'n';
+		ship.launched = false;
 
 		ships[*num] = ship;
 		(*num)++;

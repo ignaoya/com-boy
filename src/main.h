@@ -32,6 +32,7 @@ typedef struct Entity {
     bool leftEarth; //bool to indicate if a ship has left earth's orbit
     float countdown; // Counter for ships to liftoff
     bool exploded; //bool to indicate if a ship has exploded
+    bool launched; // bool to indicate if a ship has launched from earth
     char entryAngle; // char to indicate what is the entry angle of a ship with respect to the moon (n: none, l: left, r: right)
 } Entity;
 
